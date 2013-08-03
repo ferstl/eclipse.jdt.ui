@@ -427,11 +427,12 @@ public final class StubUtility2 {
 
 		List<SingleVariableDeclaration> parameters= createParameters(unit.getJavaProject(), imports, context, ast, binding, decl);
 
-		List<Name> thrownExceptions= decl.thrownExceptions();
+		int apiLevel= ast.apiLevel();
+		List<ASTNode> thrownExceptions= apiLevel < AST.JLS8 ? decl.thrownExceptions() : decl.thrownExceptionTypes();
 		ITypeBinding[] excTypes= binding.getExceptionTypes();
 		for (int i= 0; i < excTypes.length; i++) {
 			String excTypeName= imports.addImport(excTypes[i], context);
-			thrownExceptions.add(ASTNodeFactory.newName(ast, excTypeName));
+			thrownExceptions.add(apiLevel < AST.JLS8 ? ASTNodeFactory.newName(ast, excTypeName) : ASTNodeFactory.newType(ast, excTypeName));
 		}
 
 		String delimiter= unit.findRecommendedLineSeparator();

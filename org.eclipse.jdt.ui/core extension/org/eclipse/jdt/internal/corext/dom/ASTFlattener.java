@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -68,7 +72,6 @@ import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.MethodRef;
 import org.eclipse.jdt.core.dom.MethodRefParameter;
 import org.eclipse.jdt.core.dom.Modifier;
-import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.NullLiteral;
 import org.eclipse.jdt.core.dom.NumberLiteral;
@@ -949,10 +952,11 @@ public class ASTFlattener extends GenericVisitor {
 		for (int i= 0; i < node.getExtraDimensions(); i++) {
 			this.fBuffer.append("[]"); //$NON-NLS-1$
 		}
-		if (!node.thrownExceptions().isEmpty()) {
+		List<ASTNode> thrownExceptions= node.getAST().apiLevel() < AST.JLS8 ? node.thrownExceptions() : node.thrownExceptionTypes();
+		if (thrownExceptions.isEmpty()) {
 			this.fBuffer.append(" throws ");//$NON-NLS-1$
-			for (Iterator<Name> it= node.thrownExceptions().iterator(); it.hasNext();) {
-				Name n= it.next();
+			for (Iterator<ASTNode> it= thrownExceptions.iterator(); it.hasNext();) {
+				ASTNode n= it.next();
 				n.accept(this);
 				if (it.hasNext()) {
 					this.fBuffer.append(", ");//$NON-NLS-1$

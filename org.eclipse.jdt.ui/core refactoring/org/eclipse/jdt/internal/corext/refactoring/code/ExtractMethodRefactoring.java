@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -75,7 +79,6 @@ import org.eclipse.jdt.core.dom.LabeledStatement;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Modifier;
-import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.ParenthesizedExpression;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.ReturnStatement;
@@ -1018,11 +1021,13 @@ public class ExtractMethodRefactoring extends Refactoring {
 			parameters.add(parameter);
 		}
 
-		List<Name> exceptions= result.thrownExceptions();
+		int apiLevel= fAST.apiLevel();
+		List<ASTNode> exceptions= apiLevel < AST.JLS8 ? result.thrownExceptions() : result.thrownExceptionTypes();
 		ITypeBinding[] exceptionTypes= fAnalyzer.getExceptions(fThrowRuntimeExceptions);
 		for (int i= 0; i < exceptionTypes.length; i++) {
 			ITypeBinding exceptionType= exceptionTypes[i];
-			exceptions.add(ASTNodeFactory.newName(fAST, fImportRewriter.addImport(exceptionType, context)));
+			exceptions.add(apiLevel < AST.JLS8 ? ASTNodeFactory.newName(fAST, fImportRewriter.addImport(exceptionType, context)) :
+					ASTNodeFactory.newName(fAST, fImportRewriter.addImport(exceptionType, context)));
 		}
 		return result;
 	}
