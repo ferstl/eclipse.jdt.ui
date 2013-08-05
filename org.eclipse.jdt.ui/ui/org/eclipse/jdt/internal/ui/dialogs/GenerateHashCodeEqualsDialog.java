@@ -110,9 +110,11 @@ public class GenerateHashCodeEqualsDialog extends SourceActionDialog {
 	}
 
 	private static final String SETTINGS_INSTANCEOF= "InstanceOf"; //$NON-NLS-1$
+	private static final String SETTINGS_JAVAUTILOBJECTS= "JavaUtilObjects"; //$NON-NLS-1$
 	private static final String SETTINGS_BLOCKS= "Blocks"; //$NON-NLS-1$
 
 	private boolean fUseInstanceOf;
+	private boolean fUseJavaUtilObjects;
 	private boolean fUseBlocks;
 
 	public GenerateHashCodeEqualsDialog(Shell shell, CompilationUnitEditor editor, IType type, IVariableBinding[] allFields, IVariableBinding[] selectedFields) throws JavaModelException {
@@ -128,6 +130,7 @@ public class GenerateHashCodeEqualsDialog extends SourceActionDialog {
 		setInput(new Object());
 
 		fUseInstanceOf= asBoolean(getDialogSettings().get(SETTINGS_INSTANCEOF), false);
+		fUseJavaUtilObjects= asBoolean(getDialogSettings().get(SETTINGS_JAVAUTILOBJECTS), false);
 		fUseBlocks= asBoolean(getDialogSettings().get(SETTINGS_BLOCKS), false);
 	}
 
@@ -137,6 +140,7 @@ public class GenerateHashCodeEqualsDialog extends SourceActionDialog {
 	@Override
 	public boolean close() {
 		getDialogSettings().put(SETTINGS_INSTANCEOF, fUseInstanceOf);
+		getDialogSettings().put(SETTINGS_JAVAUTILOBJECTS, fUseJavaUtilObjects);
 		getDialogSettings().put(SETTINGS_BLOCKS, fUseBlocks);
 		return super.close();
 	}
@@ -170,10 +174,25 @@ public class GenerateHashCodeEqualsDialog extends SourceActionDialog {
 		button.setLayoutData(data);
 
 		button= new Button(composite, SWT.CHECK);
-		button.setText(JavaUIMessages.GenerateHashCodeEqualsDialog_blocks_button);
-		
+		button.setText(JavaUIMessages.GenerateHashCodeEqualsDialog_javautilobjecs_button);
+
 		button.addSelectionListener(new SelectionAdapter() {
-			
+
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+				setUseJavaUtilObjects((((Button) event.widget).getSelection()));
+			}
+		});
+		button.setSelection(isUseJavaUtilObjects());
+		data= new GridData(GridData.HORIZONTAL_ALIGN_FILL);
+		data.horizontalSpan= 2;
+		button.setLayoutData(data);
+
+		button= new Button(composite, SWT.CHECK);
+		button.setText(JavaUIMessages.GenerateHashCodeEqualsDialog_blocks_button);
+
+		button.addSelectionListener(new SelectionAdapter() {
+
 			@Override
 			public void widgetSelected(SelectionEvent event) {
 				setUseBlocks((((Button) event.widget).getSelection()));
@@ -193,6 +212,14 @@ public class GenerateHashCodeEqualsDialog extends SourceActionDialog {
 
 	public void setUseInstanceOf(boolean use) {
 		fUseInstanceOf= use;
+	}
+
+	public boolean isUseJavaUtilObjects() {
+		return fUseJavaUtilObjects;
+	}
+
+	public void setUseJavaUtilObjects(boolean use) {
+		fUseJavaUtilObjects= use;
 	}
 
 	public boolean isUseBlocks() {
