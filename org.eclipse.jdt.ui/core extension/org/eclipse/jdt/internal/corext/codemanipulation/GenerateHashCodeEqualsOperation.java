@@ -138,7 +138,7 @@ public final class GenerateHashCodeEqualsOperation implements IWorkspaceRunnable
 	private static final String METHODNAME_GETCLASS= "getClass"; //$NON-NLS-1$
 
 	private static final String METHODNAME_EQUALS= "equals"; //$NON-NLS-1$
-	
+
 	private static final String METHODNAME_DEEP_EQUALS= "deepEquals"; //$NON-NLS-1$
 
 	private static final String METHODNAME_HASH_CODE= "hashCode"; //$NON-NLS-1$
@@ -200,13 +200,16 @@ public final class GenerateHashCodeEqualsOperation implements IWorkspaceRunnable
 	private int fDoubleCount;
 
 	/** The primitive types to generate custom hashCode() methods for */
-	private List<ITypeBinding> fCustomHashCodeTypes= new ArrayList<ITypeBinding>();
+	private final List<ITypeBinding> fCustomHashCodeTypes= new ArrayList<ITypeBinding>();
 
 	/** <code>true</code> to use 'instanceof' to compare types, <code>false</code> otherwise */
 	private final boolean fUseInstanceOf;
 
 	/** <code>true</code> to use blocks for then */
 	private boolean fUseBlocksForThen;
+
+	/** <code>true</code> to use <code>java.util.Objects</code>. */
+	private boolean fUseJavaUtilObjects;
 
 	/** The import rewrite context, only initialized in {@link #run(IProgressMonitor)}. */
 	private ImportRewriteContext fImportRewriteContext;
@@ -257,6 +260,15 @@ public final class GenerateHashCodeEqualsOperation implements IWorkspaceRunnable
 	 */
 	public void setUseBlocksForThen(boolean useBlocksForThen) {
 		fUseBlocksForThen= useBlocksForThen;
+	}
+
+	/**
+	 * Defines if <code>java.util.Objects#hash()</code> and <code>java.util.Objects#equals()</code> is used
+	 *
+	 * @param useJavaUtilObjects if set, <code>java.util.Objects</code> is used
+	 */
+	public void setUseJavaUtilObjects(boolean useJavaUtilObjects) {
+		fUseJavaUtilObjects = useJavaUtilObjects;
 	}
 
 	/**
@@ -944,7 +956,7 @@ public final class GenerateHashCodeEqualsOperation implements IWorkspaceRunnable
 
 		return ifSt;
 	}
-	
+
 	private Statement createMultiArrayComparison(String name) {
 		MethodInvocation invoc= fAst.newMethodInvocation();
 		invoc.setName(fAst.newSimpleName(METHODNAME_DEEP_EQUALS));

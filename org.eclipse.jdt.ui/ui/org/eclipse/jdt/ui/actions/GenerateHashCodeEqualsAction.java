@@ -67,7 +67,7 @@ import org.eclipse.jdt.internal.ui.viewsupport.BindingLabelProvider;
  * @since 3.2
  */
 public final class GenerateHashCodeEqualsAction extends GenerateMethodAbstractAction {
-	
+
 	private static final String METHODNAME_HASH_CODE= "hashCode"; //$NON-NLS-1$
 	private static final String METHODNAME_EQUALS= "equals"; //$NON-NLS-1$
 
@@ -85,6 +85,7 @@ public final class GenerateHashCodeEqualsAction extends GenerateMethodAbstractAc
 	private class HashCodeEqualsGenerationSettings extends CodeGenerationSettings {
 		public boolean useInstanceOf= false;
 		public boolean useBlocks= false;
+		public boolean useJavaUtilObjects;
 	}
 
 	private List<IVariableBinding> allFields;
@@ -135,10 +136,10 @@ public final class GenerateHashCodeEqualsAction extends GenerateMethodAbstractAc
 		if (someType.isTypeVariable()) {
 			someType= someType.getErasure();
 		}
-		
+
 		while (true) {
 			IMethodBinding[] declaredMethods= someType.getDeclaredMethods();
-	
+
 			for (int i= 0; i < declaredMethods.length; i++) {
 				if (declaredMethods[i].getName().equals(METHODNAME_EQUALS)) {
 					ITypeBinding[] b= declaredMethods[i].getParameterTypes();
@@ -165,7 +166,7 @@ public final class GenerateHashCodeEqualsAction extends GenerateMethodAbstractAc
 				break;
 			}
 		}
-		
+
 		return info;
 	}
 
@@ -209,6 +210,7 @@ public final class GenerateHashCodeEqualsAction extends GenerateMethodAbstractAc
 		GenerateHashCodeEqualsDialog generateHashCodeEqualsDialog= (GenerateHashCodeEqualsDialog)dialog;
 		settings.useInstanceOf= generateHashCodeEqualsDialog.isUseInstanceOf();
 		settings.useBlocks= generateHashCodeEqualsDialog.isUseBlocks();
+		settings.useJavaUtilObjects= generateHashCodeEqualsDialog.isUseJavaUtilObjects();
 		return settings;
 	}
 
@@ -283,6 +285,7 @@ public final class GenerateHashCodeEqualsAction extends GenerateMethodAbstractAc
 		GenerateHashCodeEqualsOperation operation= new GenerateHashCodeEqualsOperation(fTypeBinding, selectedVariableBindings, fUnit, elementPosition, settings,
 				hashCodeEqualsGenerationSettings.useInstanceOf, regenerate, true, false);
 		operation.setUseBlocksForThen(hashCodeEqualsGenerationSettings.useBlocks);
+		operation.setUseJavaUtilObjects(hashCodeEqualsGenerationSettings.useJavaUtilObjects);
 		return operation;
 	}
 
